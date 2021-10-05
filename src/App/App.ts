@@ -8,8 +8,8 @@ import { User } from "../Models/Types/user";
 import { create_uuid, date_fmt_back } from "../Config/Helpers";
 
 //Connections database
-import { createTurma } from "../Models/Turma";
-import { createUser } from '../Models/User';
+import { createTurma, getTurmaById } from "../Models/Turma";
+import { createUser } from "../Models/User";
 
 // Endpoint: Criar Estudante
 export const createUserApp = async (req: Request, res: Response): Promise<void> => {
@@ -26,24 +26,31 @@ export const createUserApp = async (req: Request, res: Response): Promise<void> 
             throw new Error("Campos inválidos.");
         }
 
+        const turma = await getTurmaById(classId);
+
+        if (turma === false) {
+            res.statusCode = 404;
+            throw new Error("Turma não encontrada.");
+        }
+
         const id: number = create_uuid();
 
-        const newUser: User =  {
+        const newUser: User = {
             id: id,
             name: name,
             email: email,
             birth_date: date_fmt_back(birthDate),
-            class_id: classId,
-        }
+            class_id: classId
+        };
 
         const result = await createUser(newUser);
 
-         if (result === false) {
-             res.statusCode = 409;
-             throw new Error("Oops! Não foi possível criar um novo estudante! Tente novamente mais tarde");
-         } else {
-             res.status(201).send({ message: `Estudante criado com sucesso!` });
-         }
+        if (result === false) {
+            res.statusCode = 409;
+            throw new Error("Oops! Não foi possível criar um novo estudante! Tente novamente mais tarde");
+        } else {
+            res.status(201).send({ message: `Estudante criado com sucesso!` });
+        }
     } catch (e) {
         const error = e as Error;
         console.log(error);
