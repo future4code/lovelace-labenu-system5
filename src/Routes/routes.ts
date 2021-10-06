@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 //Endpoints
-import { createTurmaApp, createUserApp } from '../App/app';
+import { createTurmaApp, createUserApp } from '../App/App';
 
 const router: Router = Router();
 
