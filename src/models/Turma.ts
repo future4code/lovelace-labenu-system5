@@ -1,10 +1,10 @@
-import connection from "../Core/connection";
+import connection from "../core/connection";
 
 //Types
-import { Turma } from "./Types/turma";
+import { Turma } from "./types/turma";
 
 //get class by id
-export const getTurmaById = async (id: number): Promise<Turma | boolean> => {
+export const getTurmaById = async (id: number): Promise<any> => {
     try {
         const result = await connection.select("*").from("class").where({ id: id });
 

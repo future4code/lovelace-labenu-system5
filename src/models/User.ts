@@ -1,7 +1,7 @@
-import connection from "../Core/connection";
+import connection from "../core/connection";
 
 //Types
-import { User } from "./Types/user";
+import { User } from "./types/user";
 
 export const createUser = async (user: User): Promise<boolean> => {
     try {
