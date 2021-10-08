@@ -11,7 +11,7 @@ import { create_uuid, date_fmt_back } from "../config/helpers";
 //Connections database
 import { createTurma, getTurmaById } from "../models/Turma";
 import { createUser } from "../models/User";
-import { createTeacher } from "../models/Teacher";
+import { createTeacher, createTeacherSpecialty, findSpecially } from "../models/Teacher";
 
 // Endpoint: Criar Estudante
 export const createUserApp = async (req: Request, res: Response): Promise<void> => {
@@ -63,7 +63,12 @@ export const createUserApp = async (req: Request, res: Response): Promise<void> 
 //Endpoint: Criar docente
 export const createTeacherApp = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { name, email, birthDate, classId } = req.body;
+        let { name, email, birthDate, classId, specialtyName } = req.body;
+
+        if (specialtyName.length === 0) {
+            res.statusCode = 406;
+            throw new Error("Informe a especialidade do docente.");
+        }
 
         if (isNaN(classId)) {
             res.statusCode = 406;
@@ -72,7 +77,7 @@ export const createTeacherApp = async (req: Request, res: Response): Promise<voi
 
         if (!name || !email || !birthDate) {
             res.statusCode = 406;
-            throw new Error("Campo 'classId' inválido.");
+            throw new Error("Campos inválidos.");
         }
 
         const turma = await getTurmaById(classId);
@@ -80,6 +85,13 @@ export const createTeacherApp = async (req: Request, res: Response): Promise<voi
         if (turma === false) {
             res.statusCode = 404;
             throw new Error("Turma não encontrada.");
+        }
+
+        const specialty = await findSpecially(specialtyName);
+
+        if (typeof specialty === "string") {
+            res.statusCode = 404;
+            throw new Error(`Não foi possivel encontrar especialidade '${specialty}'. Verifique novamente.`);
         }
 
         const id: number = create_uuid();
@@ -98,6 +110,15 @@ export const createTeacherApp = async (req: Request, res: Response): Promise<voi
             res.statusCode = 400;
             throw new Error("Oops! Não foi possível criar um novo docente! Tente novamente mais tarde");
         } else {
+            for (let i: number = 0; i < specialtyName.length; i++) {
+                const createSpeacialty = await createTeacherSpecialty(newTeacher.id, specialty[i].id);
+
+                if (createSpeacialty === false) {
+                    res.statusCode = 400;
+                    throw new Error("Não foi possível registrar especialidade do docente. Tente novamente mais tarde.");
+                }
+            }
+
             res.status(201).send({ message: `Docente criado e alocado a turma ${turma.name} com sucesso!` });
         }
     } catch (e) {
