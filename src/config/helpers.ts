@@ -10,6 +10,8 @@ export const create_uuid = (min: number = 1000, max: number = 9000): number => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
+// `arr` is an array
+export const isEmpty = (arr: []) => !Array.isArray(arr) || arr.length === 0;
 
 /**
  * ################

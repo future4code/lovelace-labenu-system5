@@ -10,11 +10,11 @@ export const findSpecially = async (names: string[]): Promise<any> => {
         let notContains: string = "";
 
         for (let i = 0; i <= names.length; i++) {
-            const test = result.some((j) => {
+            const contains = result.some((j: any) => {
                 return j.name === names[i];
             });
 
-            if (test === false) {
+            if (contains === false) {
                 notContains = names[i];
                 i = names.length;
             }
