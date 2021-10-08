@@ -4,19 +4,25 @@ import { Request, Response } from "express";
 import { Turma } from "../models/types/turma";
 import { User } from "../models/types/user";
 import { Teacher } from "../models/types/teacher";
+import { Hobby } from "../models/types/hobby";
 
 //Helpers
-import { create_uuid, date_fmt_back } from "../config/helpers";
+import { create_uuid, date_fmt_back, isEmpty } from "../config/helpers";
 
 //Connections database
 import { createTurma, getTurmaById } from "../models/Turma";
-import { createUser } from "../models/User";
+import { createHobby, createStudentHobbies, createUser, findHobbies } from "../models/User";
 import { createTeacher, createTeacherSpecialty, findSpecially } from "../models/Teacher";
 
 // Endpoint: Criar Estudante
 export const createUserApp = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { name, email, birthDate, classId } = req.body;
+        const { name, email, birthDate, classId, hobbies } = req.body;
+
+        if (isEmpty(hobbies) || hobbies[0] === "") {
+            res.statusCode = 406;
+            throw new Error("Hobbies Inválidos! Informe no mínimo 1 hobby do estudante.");
+        }
 
         if (isNaN(classId)) {
             res.statusCode = 406;
@@ -45,12 +51,46 @@ export const createUserApp = async (req: Request, res: Response): Promise<void> 
             class_id: classId
         };
 
+        let existingHobbies = await findHobbies(hobbies);
+
+        for (let i = 0; i < hobbies.length; i++) {
+            const contains = existingHobbies.some((j: any) => {
+                return j.name === hobbies[i];
+            });
+
+            if (contains === false) {
+                const newHobbyId = create_uuid();
+                const newHobby: Hobby = {
+                    id: newHobbyId,
+                    name: hobbies[i]
+                };
+
+                const create = await createHobby(newHobby);
+
+                if (create === false) {
+                    res.statusCode = 400;
+                    throw new Error("Não foi possível criar hobbies. Tente novamente mais tarde.");
+                }
+            }
+        }
+
+        existingHobbies = await findHobbies(hobbies);
+
         const result = await createUser(newUser);
 
         if (result === false) {
             res.statusCode = 400;
             throw new Error("Oops! Não foi possível criar um novo estudante! Tente novamente mais tarde");
         } else {
+            for (let i: number = 0; i < hobbies.length; i++) {
+                const studentHobbies = await createStudentHobbies(newUser.id, existingHobbies[i].id);
+
+                if (studentHobbies === false) {
+                    res.statusCode = 400;
+                    throw new Error("Não foi possível registrar os hobbies do estudante. Tente novamente mais tarde.");
+                }
+            }
+
             res.status(201).send({ message: `Estudante criado com sucesso!` });
         }
     } catch (e) {
@@ -65,9 +105,9 @@ export const createTeacherApp = async (req: Request, res: Response): Promise<voi
     try {
         let { name, email, birthDate, classId, specialtyName } = req.body;
 
-        if (specialtyName.length === 0) {
+        if (isEmpty(specialtyName)) {
             res.statusCode = 406;
-            throw new Error("Informe a especialidade do docente.");
+            throw new Error("Informe no mínimo 1 especialidade do docente.");
         }
 
         if (isNaN(classId)) {
