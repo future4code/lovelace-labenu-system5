@@ -1,14 +1,15 @@
 import { format } from "date-fns";
 
 /**
- * ###################
- * ###   REQUEST   ###
- * ###################
+ * ################
+ * ###   MISC   ###
+ * ###############
  */
 
 export const create_uuid = (min: number = 1000, max: number = 9000): number => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+};
+
 
 /**
  * ################
