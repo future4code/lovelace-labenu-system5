@@ -10,9 +10,9 @@ import { Hobby } from "../models/types/hobby";
 import { create_uuid, date_fmt_back, isEmpty } from "../config/helpers";
 
 //Connections database
-import { createTurma, getTurmaById } from "../models/Turma";
+import { createTurma, getAllClass, getTurmaById } from "../models/Turma";
 import { createHobby, createStudentHobbies, createUser, findHobbies, getStudentsByClass } from "../models/User";
-import { createTeacher, createTeacherSpecialty, findSpecially } from "../models/Teacher";
+import { createTeacher, createTeacherSpecialty, findSpecially, getTeacherByClass } from "../models/Teacher";
 
 /**
  * ####################
@@ -21,7 +21,7 @@ import { createTeacher, createTeacherSpecialty, findSpecially } from "../models/
  */
 
 //Endpoint: Exibir estudantes de uma turma.
-export const showStudentsClass = async (req: Request, res: Response): Promise<void> => {
+export const showStudentsByClass = async (req: Request, res: Response): Promise<void> => {
     try {
         const turmaId = Number(req.params.id);
 
@@ -137,6 +137,31 @@ export const createUserApp = async (req: Request, res: Response): Promise<void> 
  * ###################
  */
 
+//Endpoint: Exibir docentes de uma turma;
+export const showTeachersByClass = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const turmaId = Number(req.params.id);
+
+        if (isNaN(turmaId)) {
+            res.statusCode = 406;
+            throw new Error("Não foi possível identificar turma.");
+        }
+
+        const result = await getTeacherByClass(turmaId);
+
+        if (result === false) {
+            res.statusCode = 404;
+            throw new Error("Turma não encontrada.");
+        } else {
+            res.status(200).send(result);
+        }
+    } catch (e) {
+        const error = e as Error;
+        console.log(error);
+        res.send({ message: error.message });
+    }
+};
+
 //Endpoint: Criar docente
 export const createTeacherApp = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -210,6 +235,24 @@ export const createTeacherApp = async (req: Request, res: Response): Promise<voi
  * ###   Class   ###
  * #################
  */
+
+//Endpoint: pegar todas as turmas
+export const getAllClassApp = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const allClasses = await getAllClass();
+
+        if (allClasses === false) {
+            res.statusCode = 404;
+            throw new Error("Nenhuma turma encontrada!");
+        } else {
+            res.status(200).json(allClasses);
+        }
+    } catch (e) {
+        const error = e as Error;
+        console.log(error);
+        res.send({ message: error.message });
+    }
+};
 
 // Endpoint: Criar Turma
 export const createTurmaApp = async (req: Request, res: Response): Promise<void> => {
