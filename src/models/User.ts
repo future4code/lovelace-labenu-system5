@@ -109,3 +109,15 @@ export const removeClass = async (studentId: number): Promise<boolean> => {
         return false;
     }
 };
+
+// remove student
+export const removeStudent = async (studentId: number): Promise<boolean> => {
+    try {
+        await connection("student").delete().where({ id: studentId });
+
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+};

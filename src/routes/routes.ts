@@ -9,6 +9,7 @@ import {
     createTurmaApp,
     createUserApp,
     getAllClassApp,
+    removeStudentApp,
     removeStudentTheClass,
     showStudentsByClass,
     showTeachersByClass
@@ -30,5 +31,7 @@ router.post("/class", createTurmaApp);
 
 router.put("/students/removeclass", removeStudentTheClass)
 router.put("/class/module", changeModuleClass);
+
+router.delete("/students/:id", removeStudentApp)
 
 export default router;
