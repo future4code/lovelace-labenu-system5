@@ -1,9 +1,9 @@
-import { date_fmt } from '../config/helpers';
+import Module from "module";
+import { date_fmt } from "../config/helpers";
 import connection from "../core/connection";
 
 //Types
 import { Turma } from "./types/turma";
-
 
 // get all classes
 export const getAllClass = async (): Promise<Turma[] | boolean> => {
@@ -20,7 +20,7 @@ export const getAllClass = async (): Promise<Turma[] | boolean> => {
             };
         });
 
-        return resultModified; 
+        return resultModified;
     } catch (error) {
         console.log(error);
         return false;
@@ -47,6 +47,22 @@ export const getTurmaById = async (id: number): Promise<any> => {
 export const createTurma = async (turma: Turma): Promise<boolean> => {
     try {
         await connection("class").insert(turma);
+
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+};
+
+// Update Module Turma
+export const updateModule = async (turmaId: number, module: number): Promise<boolean> => {
+    try {
+        await connection("class")
+            .update({
+                module: module
+            })
+            .where({ id: turmaId });
 
         return true;
     } catch (error) {
