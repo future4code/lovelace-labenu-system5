@@ -11,7 +11,14 @@ import { create_uuid, date_fmt_back, isEmpty } from "../config/helpers";
 
 //Connections database
 import { createTurma, getAllClass, getTurmaById, updateModule } from "../models/Turma";
-import { createHobby, createStudentHobbies, createUser, findHobbies, getStudentsByClass } from "../models/User";
+import {
+    addInClass,
+    createHobby,
+    createStudentHobbies,
+    createUser,
+    findHobbies,
+    getStudentsByClass
+} from "../models/User";
 import { createTeacher, createTeacherSpecialty, findSpecially, getTeacherByClass } from "../models/Teacher";
 
 /**
@@ -53,28 +60,16 @@ export const showStudentsByClass = async (req: Request, res: Response): Promise<
 // Endpoint: Criar Estudante
 export const createUserApp = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { name, email, birthDate, classId, hobbies } = req.body;
+        const { name, email, birthDate, hobbies } = req.body;
 
         if (isEmpty(hobbies) || hobbies[0] === "") {
             res.statusCode = 406;
             throw new Error("Hobbies Inválidos! Informe no mínimo 1 hobby do estudante.");
         }
 
-        if (isNaN(classId)) {
-            res.statusCode = 406;
-            throw new Error("Campo 'classId' inválido.");
-        }
-
         if (!name || !email || !birthDate) {
             res.statusCode = 406;
             throw new Error("Campos inválidos.");
-        }
-
-        const turma = await getTurmaById(classId);
-
-        if (turma === false) {
-            res.statusCode = 404;
-            throw new Error("Turma não encontrada.");
         }
 
         const id: number = create_uuid();
@@ -83,8 +78,7 @@ export const createUserApp = async (req: Request, res: Response): Promise<void> 
             id: id,
             name: name,
             email: email,
-            birth_date: date_fmt_back(birthDate),
-            class_id: classId
+            birth_date: date_fmt_back(birthDate)
         };
 
         let existingHobbies = await findHobbies(hobbies);
@@ -128,6 +122,44 @@ export const createUserApp = async (req: Request, res: Response): Promise<void> 
             }
 
             res.status(201).send({ message: `Estudante criado com sucesso!` });
+        }
+    } catch (e) {
+        const error = e as Error;
+        console.log(error);
+        res.send({ message: error.message });
+    }
+};
+
+//Endpoint: Adicionar estudante na turma;
+export const addStudentInClassApp = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const studentId = Number(req.query.studentId);
+        const classId = Number(req.query.classId);
+
+        if (!studentId || !classId) {
+            res.statusCode = 406;
+            throw new Error("Campos inválidos.");
+        }
+
+        if (isNaN(classId) || isNaN(studentId)) {
+            res.statusCode = 406;
+            throw new Error("Campo 'studentId' ou 'classId' inválidos.");
+        }
+
+        const turma = await getTurmaById(classId);
+
+        if (turma === false) {
+            res.statusCode = 404;
+            throw new Error("Turma não encontrada.");
+        }
+
+        const result = await addInClass(studentId, classId);
+
+        if (result === false) {
+            res.statusCode = 404;
+            throw new Error("Não foi possível estudante nessa turma. Tente novamente mais tarde.");
+        } else {
+            res.status(200).send({ message: `Estudante adicionado na turma ${turma.name} com sucesso!` });
         }
     } catch (e) {
         const error = e as Error;

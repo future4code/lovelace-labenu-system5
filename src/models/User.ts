@@ -43,6 +43,20 @@ export const findHobbies = async (hobbies: string[]): Promise<any> => {
     }
 };
 
+// Add student in class
+export const addInClass = async (userId: number, classId: number): Promise<boolean> => {
+    try {
+        await connection("student")
+        .update({class_id: classId})
+        .where({id: userId})
+
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+}; 
+
 //Create a Student
 export const createUser = async (user: User): Promise<boolean> => {
     try {
@@ -67,6 +81,7 @@ export const createHobby = async (hobby: Hobby): Promise<boolean> => {
     }
 };
 
+//Create student hobbies
 export const createStudentHobbies = async (studentId: number, hobbyId: number): Promise<boolean> => {
     try {
         await connection("student_hobby").insert({
