@@ -3,6 +3,7 @@ import { Router } from "express";
 //Endpoints
 import {
     addStudentInClassApp,
+    addTeacherInClassApp,
     changeModuleClass,
     createTeacherApp,
     createTurmaApp,
@@ -21,8 +22,10 @@ router.get("/teachers/class/:id", showTeachersByClass);
 router.post("/students", createUserApp);
 router.post("/students/addclass", addStudentInClassApp);
 
-router.post("/class", createTurmaApp);
 router.post("/teachers", createTeacherApp);
+router.post("/teachers/addclass", addTeacherInClassApp);
+
+router.post("/class", createTurmaApp);
 
 router.put("/class/module", changeModuleClass);
 

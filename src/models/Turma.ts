@@ -43,6 +43,20 @@ export const getTurmaById = async (id: number): Promise<any> => {
     }
 };
 
+// Add teacher in class
+export const addTeacherInClass = async (userId: number, classId: number): Promise<boolean> => {
+    try {
+        await connection("teacher")
+        .update({class_id: classId})
+        .where({id: userId})
+
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+}; 
+
 // Create a new class
 export const createTurma = async (turma: Turma): Promise<boolean> => {
     try {

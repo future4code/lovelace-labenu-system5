@@ -10,7 +10,7 @@ import { Hobby } from "../models/types/hobby";
 import { create_uuid, date_fmt_back, isEmpty } from "../config/helpers";
 
 //Connections database
-import { createTurma, getAllClass, getTurmaById, updateModule } from "../models/Turma";
+import { addTeacherInClass, createTurma, getAllClass, getTurmaById, updateModule } from "../models/Turma";
 import {
     addInClass,
     createHobby,
@@ -157,7 +157,7 @@ export const addStudentInClassApp = async (req: Request, res: Response): Promise
 
         if (result === false) {
             res.statusCode = 404;
-            throw new Error("Não foi possível estudante nessa turma. Tente novamente mais tarde.");
+            throw new Error(`Não foi possível adicionar estudante na turma ${turma.name}. Tente novamente mais tarde.`);
         } else {
             res.status(200).send({ message: `Estudante adicionado na turma ${turma.name} com sucesso!` });
         }
@@ -207,28 +207,16 @@ export const showTeachersByClass = async (req: Request, res: Response): Promise<
 //Endpoint: Criar docente
 export const createTeacherApp = async (req: Request, res: Response): Promise<void> => {
     try {
-        let { name, email, birthDate, classId, specialtyName } = req.body;
+        let { name, email, birthDate, specialtyName } = req.body;
 
         if (isEmpty(specialtyName)) {
             res.statusCode = 406;
             throw new Error("Informe no mínimo 1 especialidade do docente.");
         }
 
-        if (isNaN(classId)) {
-            res.statusCode = 406;
-            throw new Error("Campo 'classId' inválido.");
-        }
-
         if (!name || !email || !birthDate) {
             res.statusCode = 406;
             throw new Error("Campos inválidos.");
-        }
-
-        const turma = await getTurmaById(classId);
-
-        if (turma === false) {
-            res.statusCode = 404;
-            throw new Error("Turma não encontrada.");
         }
 
         const specialty = await findSpecially(specialtyName);
@@ -244,8 +232,7 @@ export const createTeacherApp = async (req: Request, res: Response): Promise<voi
             id: id,
             name: name,
             email: email,
-            birth_date: date_fmt_back(birthDate),
-            class_id: classId
+            birth_date: date_fmt_back(birthDate)
         };
 
         const result = await createTeacher(newTeacher);
@@ -263,7 +250,45 @@ export const createTeacherApp = async (req: Request, res: Response): Promise<voi
                 }
             }
 
-            res.status(201).send({ message: `Docente criado e alocado a turma ${turma.name} com sucesso!` });
+            res.status(201).send({ message: `Docente criado com sucesso!` });
+        }
+    } catch (e) {
+        const error = e as Error;
+        console.log(error);
+        res.send({ message: error.message });
+    }
+};
+
+// Endpoint: Adicionar docente na turma;
+export const addTeacherInClassApp = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const teacherId = Number(req.query.teacherId);
+        const classId = Number(req.query.classId);
+
+        if (!teacherId || !classId) {
+            res.statusCode = 406;
+            throw new Error("Campos inválidos.");
+        }
+
+        if (isNaN(classId) || isNaN(teacherId)) {
+            res.statusCode = 406;
+            throw new Error("Campo 'teacherId' ou 'classId' inválidos.");
+        }
+
+        const turma = await getTurmaById(classId);
+
+        if (turma === false) {
+            res.statusCode = 404;
+            throw new Error("Turma não encontrada.");
+        }
+
+        const result = await addTeacherInClass(teacherId, classId);
+
+        if (result === false) {
+            res.statusCode = 404;
+            throw new Error(`Não foi possível adicionar docente na turma ${turma.name}. Tente novamente mais tarde.`);
+        } else {
+            res.status(200).send({ message: `Docente adicionado na turma ${turma.name} com sucesso!` });
         }
     } catch (e) {
         const error = e as Error;
