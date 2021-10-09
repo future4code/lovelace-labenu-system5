@@ -1,8 +1,7 @@
-import { date_fmt } from '../config/helpers';
+import { date_fmt } from "../config/helpers";
 import connection from "../core/connection";
 
 import { Teacher } from "../models/types/teacher";
-
 
 // Get teacher by class
 export const getTeacherByClass = async (turmaId: number): Promise<Teacher[] | boolean> => {
@@ -76,6 +75,22 @@ export const createTeacherSpecialty = async (teacherId: number, specialtyId: num
             teacher_id: teacherId,
             specialty_id: specialtyId
         });
+
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+};
+
+//Remove the Class
+export const removeTheClass = async (teacherId: number): Promise<boolean> => {
+    try {
+        await connection("teacher")
+            .update({
+                class_id: null
+            })
+            .where({ id: teacherId });
 
         return true;
     } catch (error) {
