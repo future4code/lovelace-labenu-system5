@@ -10,7 +10,7 @@ import { Hobby } from "../models/types/hobby";
 import { create_uuid, date_fmt_back, isEmpty } from "../config/helpers";
 
 //Connections database
-import { createTurma, getAllClass, getTurmaById } from "../models/Turma";
+import { createTurma, getAllClass, getTurmaById, updateModule } from "../models/Turma";
 import { createHobby, createStudentHobbies, createUser, findHobbies, getStudentsByClass } from "../models/User";
 import { createTeacher, createTeacherSpecialty, findSpecially, getTeacherByClass } from "../models/Teacher";
 
@@ -24,6 +24,11 @@ import { createTeacher, createTeacherSpecialty, findSpecially, getTeacherByClass
 export const showStudentsByClass = async (req: Request, res: Response): Promise<void> => {
     try {
         const turmaId = Number(req.params.id);
+
+        if (!turmaId) {
+            res.statusCode = 406;
+            throw new Error("Não foi possível identificar turma.");
+        }
 
         if (isNaN(turmaId)) {
             res.statusCode = 406;
@@ -141,6 +146,11 @@ export const createUserApp = async (req: Request, res: Response): Promise<void> 
 export const showTeachersByClass = async (req: Request, res: Response): Promise<void> => {
     try {
         const turmaId = Number(req.params.id);
+
+        if (!turmaId) {
+            res.statusCode = 406;
+            throw new Error("Não foi possível identificar turma.");
+        }
 
         if (isNaN(turmaId)) {
             res.statusCode = 406;
@@ -286,6 +296,44 @@ export const createTurmaApp = async (req: Request, res: Response): Promise<void>
             throw new Error("Oops! Não foi possível criar uma nova turma! Tente novamente mais tarde");
         } else {
             res.status(201).send({ message: `A turma ${name} foi criada com sucesso!` });
+        }
+    } catch (e) {
+        const error = e as Error;
+        console.log(error);
+        res.send({ message: error.message });
+    }
+};
+
+// Endpoint: Mudar modulo da turma
+export const changeModuleClass = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const id = Number(req.query.id);
+        const module = Number(req.query.module);
+
+        if (!id || !module) {
+            res.statusCode = 406;
+            throw new Error("Campos inválidos.");
+        }
+
+        if (isNaN(module) || isNaN(id)) {
+            res.statusCode = 406;
+            throw new Error("Campo 'id' ou 'module' inválidos.");
+        }
+
+        const checkClass = await getTurmaById(id);
+
+        if (checkClass === false) {
+            res.statusCode = 404;
+            throw new Error("Turma não encontrada.");
+        }
+
+        const result = await updateModule(id, module);
+
+        if (result === false) {
+            res.statusCode = 400;
+            throw new Error("Oops! Não foi possível o modulo dessa turma! Tente novamente mais tarde");
+        } else {
+            res.status(201).send({ message: `Módulo atualizado com sucesso!` });
         }
     } catch (e) {
         const error = e as Error;
