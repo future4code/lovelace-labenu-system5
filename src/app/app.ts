@@ -18,7 +18,8 @@ import {
     createUser,
     findHobbies,
     getStudentsByClass,
-    removeClass
+    removeClass,
+    removeStudent
 } from "../models/User";
 import { createTeacher, createTeacherSpecialty, findSpecially, getTeacherByClass } from "../models/Teacher";
 
@@ -199,6 +200,36 @@ export const removeStudentTheClass = async (req: Request, res: Response): Promis
             throw new Error(`Não foi possível remover estudante da turma ${turma.name}. Tente novamente mais tarde.`);
         } else {
             res.status(200).send({ message: `Estudante removido da turma ${turma.name} com sucesso!` });
+        }
+    } catch (e) {
+        const error = e as Error;
+        console.log(error);
+        res.send({ message: error.message });
+    }
+};
+
+// Endpoint: Remover estudante
+export const removeStudentApp = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const studentId = Number(req.params.id);
+
+        if (!studentId) {
+            res.statusCode = 406;
+            throw new Error("Campos inválidos.");
+        }
+
+        if (isNaN(studentId)) {
+            res.statusCode = 406;
+            throw new Error("Campo 'studentId' ou 'classId' inválidos.");
+        }
+
+        const result = await removeStudent(studentId);
+
+        if (result === false) {
+            res.statusCode = 404;
+            throw new Error(`Não foi possível remover estudante. Tente novamente mais tarde.`);
+        } else {
+            res.status(200).send({ message: `Estudante removido com sucesso!` });
         }
     } catch (e) {
         const error = e as Error;
