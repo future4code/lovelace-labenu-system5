@@ -1,6 +1,32 @@
+import { date_fmt } from '../config/helpers';
 import connection from "../core/connection";
 
 import { Teacher } from "../models/types/teacher";
+
+
+// Get teacher by class
+export const getTeacherByClass = async (turmaId: number): Promise<Teacher[] | boolean> => {
+    try {
+        const result = await connection
+            .select("id", "name", "email", "birth_date")
+            .from("teacher")
+            .where({ class_id: turmaId });
+
+        const resultModified = result.map((user: Teacher) => {
+            return {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                birthDate: date_fmt(user.birth_date)
+            };
+        });
+
+        return resultModified;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+};
 
 //Find specialty
 export const findSpecially = async (names: string[]): Promise<any> => {
