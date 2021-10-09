@@ -21,7 +21,7 @@ import {
     removeClass,
     removeStudent
 } from "../models/User";
-import { createTeacher, createTeacherSpecialty, findSpecially, getTeacherByClass } from "../models/Teacher";
+import { createTeacher, createTeacherSpecialty, findSpecially, getTeacherByClass, removeTheClass } from "../models/Teacher";
 
 /**
  * ####################
@@ -366,6 +366,45 @@ export const addTeacherInClassApp = async (req: Request, res: Response): Promise
         res.send({ message: error.message });
     }
 };
+
+//Endpoint: Remover docente de uma turma
+export const removeTeacherTheClass = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const teacherId = Number(req.query.teacherId);
+        const classId = Number(req.query.classId);
+
+        if (!teacherId || !classId) {
+            res.statusCode = 406;
+            throw new Error("Campos inválidos.");
+        }
+
+        if (isNaN(classId) || isNaN(teacherId)) {
+            res.statusCode = 406;
+            throw new Error("Campo 'teacherId' ou 'classId' inválidos.");
+        }
+
+        const turma = await getTurmaById(classId);
+
+        if (turma === false) {
+            res.statusCode = 404;
+            throw new Error("Turma não encontrada.");
+        }
+
+        const result = await removeTheClass(teacherId);
+
+        if (result === false) {
+            res.statusCode = 404;
+            throw new Error(`Não foi possível remover docente da turma ${turma.name}. Tente novamente mais tarde.`);
+        } else {
+            res.status(200).send({ message: `Docente removido da turma ${turma.name} com sucesso!` });
+        }
+    } catch (e) {
+        const error = e as Error;
+        console.log(error);
+        res.send({ message: error.message });
+    }
+};
+
 
 /**
  * #################
