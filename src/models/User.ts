@@ -1,8 +1,35 @@
 import connection from "../core/connection";
-import { Hobby } from "./types/hobby";
 
 //Types
 import { User } from "./types/user";
+import { Hobby } from "./types/hobby";
+
+//Helpers
+import { date_fmt } from "../config/helpers";
+
+// Get students by class
+export const getStudentsByClass = async (turmaId: number): Promise<User[] | boolean> => {
+    try {
+        const result = await connection
+            .select("id", "name", "email", "birth_date")
+            .from("student")
+            .where({ class_id: turmaId });
+
+        const resultModified = result.map((user: User) => {
+            return {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                birthDate: date_fmt(user.birth_date)
+            };
+        });
+
+        return resultModified;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+};
 
 // Find hobbies
 export const findHobbies = async (hobbies: string[]): Promise<any> => {

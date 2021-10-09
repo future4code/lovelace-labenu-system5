@@ -11,8 +11,39 @@ import { create_uuid, date_fmt_back, isEmpty } from "../config/helpers";
 
 //Connections database
 import { createTurma, getTurmaById } from "../models/Turma";
-import { createHobby, createStudentHobbies, createUser, findHobbies } from "../models/User";
+import { createHobby, createStudentHobbies, createUser, findHobbies, getStudentsByClass } from "../models/User";
 import { createTeacher, createTeacherSpecialty, findSpecially } from "../models/Teacher";
+
+/**
+ * ####################
+ * ###   Students   ###
+ * ####################
+ */
+
+//Endpoint: Exibir estudantes de uma turma.
+export const showStudentsClass = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const turmaId = Number(req.params.id);
+
+        if (isNaN(turmaId)) {
+            res.statusCode = 406;
+            throw new Error("Não foi possível identificar turma.");
+        }
+
+        const result = await getStudentsByClass(turmaId);
+
+        if (result === false) {
+            res.statusCode = 404;
+            throw new Error("Turma não encontrada.");
+        } else {
+            res.status(200).send(result);
+        }
+    } catch (e) {
+        const error = e as Error;
+        console.log(error);
+        res.send({ message: error.message });
+    }
+};
 
 // Endpoint: Criar Estudante
 export const createUserApp = async (req: Request, res: Response): Promise<void> => {
@@ -100,6 +131,12 @@ export const createUserApp = async (req: Request, res: Response): Promise<void> 
     }
 };
 
+/**
+ * ###################
+ * ###   Teacher   ###
+ * ###################
+ */
+
 //Endpoint: Criar docente
 export const createTeacherApp = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -167,6 +204,12 @@ export const createTeacherApp = async (req: Request, res: Response): Promise<voi
         res.send({ message: error.message });
     }
 };
+
+/**
+ * #################
+ * ###   Class   ###
+ * #################
+ */
 
 // Endpoint: Criar Turma
 export const createTurmaApp = async (req: Request, res: Response): Promise<void> => {

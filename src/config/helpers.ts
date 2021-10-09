@@ -19,7 +19,7 @@ export const isEmpty = (arr: []) => !Array.isArray(arr) || arr.length === 0;
  * ################
  */
 
-export const date_fmt = (date: string, formatStr: string = "dd/MM/yyyy"): string => {
+export const date_fmt = (date: string = Date(), formatStr: string = "dd/MM/yyyy"): string => {
     return format(new Date(date), formatStr);
 };
 
