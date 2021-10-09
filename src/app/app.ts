@@ -18,10 +18,17 @@ import {
     createUser,
     findHobbies,
     getStudentsByClass,
+    getStudentsByHobby,
     removeClass,
     removeStudent
 } from "../models/User";
-import { createTeacher, createTeacherSpecialty, findSpecially, getTeacherByClass, removeTheClass } from "../models/Teacher";
+import {
+    createTeacher,
+    createTeacherSpecialty,
+    findSpecially,
+    getTeacherByClass,
+    removeTheClass
+} from "../models/Teacher";
 
 /**
  * ####################
@@ -49,6 +56,31 @@ export const showStudentsByClass = async (req: Request, res: Response): Promise<
         if (result === false) {
             res.statusCode = 404;
             throw new Error("Turma não encontrada.");
+        } else {
+            res.status(200).send(result);
+        }
+    } catch (e) {
+        const error = e as Error;
+        console.log(error);
+        res.send({ message: error.message });
+    }
+};
+
+// Endpoint: Exibir estudantes que possuam o mesmo hobby;
+export const showStudentsByHobby = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const hobbyName = req.query.hobbyName as string;
+
+        if (!hobbyName) {
+            res.statusCode = 406;
+            throw new Error("Campo inválido");
+        }
+
+        const result = await getStudentsByHobby(hobbyName);
+
+        if (result === false) {
+            res.statusCode = 404;
+            throw new Error("Estudantes não encontrados.");
         } else {
             res.status(200).send(result);
         }
@@ -404,7 +436,6 @@ export const removeTeacherTheClass = async (req: Request, res: Response): Promis
         res.send({ message: error.message });
     }
 };
-
 
 /**
  * #################

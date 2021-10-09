@@ -13,12 +13,14 @@ import {
     removeStudentTheClass,
     removeTeacherTheClass,
     showStudentsByClass,
+    showStudentsByHobby,
     showTeachersByClass
 } from "../app/app";
 
 const router: Router = Router();
 
 router.get("/class", getAllClassApp);
+router.get("/students/hobby", showStudentsByHobby);
 router.get("/students/class/:id", showStudentsByClass);
 router.get("/teachers/class/:id", showTeachersByClass);
 

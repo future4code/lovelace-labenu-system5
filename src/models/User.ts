@@ -31,6 +31,32 @@ export const getStudentsByClass = async (turmaId: number): Promise<User[] | bool
     }
 };
 
+// Get students by same hobby
+export const getStudentsByHobby = async (hobbyName: string): Promise<any> => {
+    try {
+        const result = await connection("hobbies")
+            .join("student_hobby", "student_hobby.hobby_id", "hobbies.id")
+            .join("student", "student.id", "student_hobby.student_id")
+            .select("*")
+            .where("hobbies.name", "like", `%${hobbyName}%`);
+
+        const resultModified = result.map((user: User) => {
+            return {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                classId: user.class_id,
+                birthDate: date_fmt(user.birth_date)
+            };
+        });
+        
+        return resultModified;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+};
+
 // Find hobbies
 export const findHobbies = async (hobbies: string[]): Promise<any> => {
     try {
