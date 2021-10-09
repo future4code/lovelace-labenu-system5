@@ -17,7 +17,8 @@ import {
     createStudentHobbies,
     createUser,
     findHobbies,
-    getStudentsByClass
+    getStudentsByClass,
+    removeClass
 } from "../models/User";
 import { createTeacher, createTeacherSpecialty, findSpecially, getTeacherByClass } from "../models/Teacher";
 
@@ -160,6 +161,44 @@ export const addStudentInClassApp = async (req: Request, res: Response): Promise
             throw new Error(`Não foi possível adicionar estudante na turma ${turma.name}. Tente novamente mais tarde.`);
         } else {
             res.status(200).send({ message: `Estudante adicionado na turma ${turma.name} com sucesso!` });
+        }
+    } catch (e) {
+        const error = e as Error;
+        console.log(error);
+        res.send({ message: error.message });
+    }
+};
+
+// Endpoint: Remover estudante de uma turma;
+export const removeStudentTheClass = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const studentId = Number(req.query.studentId);
+        const classId = Number(req.query.classId);
+
+        if (!studentId || !classId) {
+            res.statusCode = 406;
+            throw new Error("Campos inválidos.");
+        }
+
+        if (isNaN(classId) || isNaN(studentId)) {
+            res.statusCode = 406;
+            throw new Error("Campo 'studentId' ou 'classId' inválidos.");
+        }
+
+        const turma = await getTurmaById(classId);
+
+        if (turma === false) {
+            res.statusCode = 404;
+            throw new Error("Turma não encontrada.");
+        }
+
+        const result = await removeClass(studentId);
+
+        if (result === false) {
+            res.statusCode = 404;
+            throw new Error(`Não foi possível remover estudante da turma ${turma.name}. Tente novamente mais tarde.`);
+        } else {
+            res.status(200).send({ message: `Estudante removido da turma ${turma.name} com sucesso!` });
         }
     } catch (e) {
         const error = e as Error;

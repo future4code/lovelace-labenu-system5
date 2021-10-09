@@ -46,16 +46,14 @@ export const findHobbies = async (hobbies: string[]): Promise<any> => {
 // Add student in class
 export const addInClass = async (userId: number, classId: number): Promise<boolean> => {
     try {
-        await connection("student")
-        .update({class_id: classId})
-        .where({id: userId})
+        await connection("student").update({ class_id: classId }).where({ id: userId });
 
         return true;
     } catch (error) {
         console.log(error);
         return false;
     }
-}; 
+};
 
 //Create a Student
 export const createUser = async (user: User): Promise<boolean> => {
@@ -88,6 +86,22 @@ export const createStudentHobbies = async (studentId: number, hobbyId: number): 
             student_id: studentId,
             hobby_id: hobbyId
         });
+
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+};
+
+// remove student the class
+export const removeClass = async (studentId: number): Promise<boolean> => {
+    try {
+        await connection("student")
+            .update({
+                class_id: null
+            })
+            .where({ id: studentId });
 
         return true;
     } catch (error) {
