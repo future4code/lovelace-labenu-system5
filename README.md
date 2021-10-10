@@ -137,5 +137,5 @@
 
 ## Créditos
 - [Rafael N. Silva](https://github.com/rafansilva) (Developer)
-- [Erlan Gleidson](https://github.com/Carvalho001) (Developer)
+- [Erlan Carvalho](https://github.com/Carvalho001) (Developer)
 - [Labenu](https://www.labenu.com.br/) (Turma Lovalace)
