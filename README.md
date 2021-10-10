@@ -1,33 +1,135 @@
 ## LabenuSystem:
 
-Você estuda na Labenu_ há tanto tempo que já parecem anos, não é? Então, hoje, vamos pedir para criar um sistema que represente o básico da nossa organização. 
+É um sistema simples que representa o básico da escola digital [Labenu](https://www.labenu.com.br/).
 
-Ele deve possuir, ao menos, as 3 entidades importantes:
+## ENDPOINTS
 
-1. Estudantes 
+---
 
-    Representa estudantes da nossa instituição. Eles devem possuir: id, nome, email, data de nascimento e os principais hobbies dele. 
+### **Endpoint**: Criar Turma
 
-2. Docente
+-   **Método:** POST
+-   **Path:** `/class`
+-   **Body de Exemplo:**
 
-    Representa docentes da nossa instituição. Eles devem possuir: id, nome, email, data de nascimento e todas as especialidades dele. Há 7 especialidades: React, Redux, CSS, Testes, Typescript, Programação Orientada a Objetos e Backend
+```json
+{
+    "name": "Lovelace",
+    "module": 4,
+    "initialDate": "07/06/2021",
+    "finalDate": "13/12/2021"
+}
+```
 
-3. Turma
+---
 
-    Toda turma é composta das seguintes características: id, nome, data de início, data de término, lista de professores responsáveis, uma lista de alunos e módulo atual em que a turma está.
+### **Endpoint**: Criar Estudantes
 
-    O módulo pode assumir os valores de 1 a 7 ou `undefined`, indicando que as aulas dessa turma ainda não começaram. Para esse exercício, vamos considerar que existam dois tipos de turma: integral ou noturna. Há uma restrição para o nome das turmas noturnas: tem que terminar com `-na-night`.
+-   **Método:** POST
+-   **Path:** `/students`
+-   **Body de Exemplo:**
 
-As funcionalidades básicas são:
+```json
+{
+    "name": "Alexandre",
+    "email": "ale@email.com",
+    "birthDate": "24/12/1998",
+    "hobbies": ["jogar videogame", "assistir filmes", "assistir series", "programar"]
+}
+```
 
-→ Criar estudante;
+---
 
-→ Criar docente;
+### **Endpoint**: Criar Docente
 
-→ Criar turma;
+-   **Método:** POST
+-   **Path:** `/teachers`
+-   **Body de Exemplo:**
 
-→ Adicionar estudante na turma;
+```json
+{
+    "name": "Darvas",
+    "email": "darvas@email.com",
+    "birthDate": "12/07/1997",
+    "specialtyName": ["typescript", "testes", "react", "backend"]
+}
+```
 
-→ Adicionar docente na turma;
+---
 
-→ Pegar a idade de algum estudante a partir do id
+### **Endpoint**: Pegar todas as turmas
+
+-   **Método:** GET
+-   **Path:** `/class`
+
+---
+
+### **Endpoint**: Adicionar estudante na turma
+
+-   **Método:** POST
+-   **Path:** `/students/addclass?studentId=4407&classId=3474`
+-   **Query String:** indica o id do estudante através da chave `studentId` e o id da turma através da chave `classId`
+
+---
+
+### **Endpoint**: Adicionar docente na turma
+
+-   **Método:** POST
+-   **Path:** `/teachers/addclass?teacherId=8799&classId=4778`
+-   **Query String:** indica o id do docente através da chave `teacherId` e o id da turma através da chave `classId`
+
+---
+
+### **Endpoint**: Exibir estudantes de uma turma
+
+-   **Método:** GET
+-   **Path:** `/students/class/:id`
+-   **Path Param**: é o id da turma
+
+---
+
+### **Endpoint**: Exibir docentes de uma turma
+
+-   **Método:** GET
+-   **Path:** `/teachers/class/:id`
+-   **Path Param**: é o id da turma
+
+---
+
+### **Endpoint**: Exibir estudantes que possuam o mesmo hobby
+
+-   **Método:** GET
+-   **Path:** `/students/hobby?hobbyName=programar`
+-   **Query String:** indica o nome do hobby através da chave `hobbyName`
+
+---
+
+### **Endpoint**: Remover estudante de uma turma
+
+-   **Método:** PUT
+-   **Path:** `/students/removeclass?studentId=6653&classId=4490`
+-   **Query String:** indica o id do estudante através da chave `studentId` e o id da turma através da chave `classId`
+
+---
+
+### **Endpoint**: Remover estudante
+
+-   **Método:** DELETE
+-   **Path:** `/students/:id`
+-   **Query String:** indica o id do estudante através da chave `studentId`
+
+---
+
+### **Endpoint**: Remover docente de uma turma
+
+-   **Método:** PUT
+-   **Path:** `/teachers/removeclass?teacherId=8799&classId=4778`
+-   **Query String:** indica o id do docente através da chave `teacherId` e o id da turma através da chave `classId`
+
+---
+
+### **Endpoint**: Mudar turma de módulo
+
+-   **Método:** PUT
+-   **Path:** `/class/module?id=3701&module=5`
+-   **Query String:** indica o id da turma através da chave `id` e o módulo da turma através da chave `module`
