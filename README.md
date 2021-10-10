@@ -133,3 +133,9 @@
 -   **Método:** PUT
 -   **Path:** `/class/module?id=3701&module=5`
 -   **Query String:** indica o id da turma através da chave `id` e o módulo da turma através da chave `module`
+
+
+## Créditos
+- [Rafael N. Silva](https://github.com/rafansilva) (Developer)
+- [Erlan Gleidson](https://github.com/Carvalho001) (Developer)
+- [Labenu](https://www.labenu.com.br/) (Turma Lovalace)
