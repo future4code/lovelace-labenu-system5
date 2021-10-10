@@ -12,6 +12,7 @@ import {
     removeStudentApp,
     removeStudentTheClass,
     removeTeacherTheClass,
+    showStudentsAge,
     showStudentsByClass,
     showStudentsByHobby,
     showTeachersByClass
@@ -22,6 +23,7 @@ const router: Router = Router();
 router.get("/class", getAllClassApp);
 router.get("/students/hobby", showStudentsByHobby);
 router.get("/students/class/:id", showStudentsByClass);
+router.get("/students/age/:id", showStudentsAge);
 router.get("/teachers/class/:id", showTeachersByClass);
 
 router.post("/students", createUserApp);

@@ -17,6 +17,7 @@ import {
     createStudentHobbies,
     createUser,
     findHobbies,
+    getAgeStudent,
     getStudentsByClass,
     getStudentsByHobby,
     removeClass,
@@ -81,6 +82,36 @@ export const showStudentsByHobby = async (req: Request, res: Response): Promise<
         if (result === false) {
             res.statusCode = 404;
             throw new Error("Estudantes não encontrados.");
+        } else {
+            res.status(200).send(result);
+        }
+    } catch (e) {
+        const error = e as Error;
+        console.log(error);
+        res.send({ message: error.message });
+    }
+};
+
+// Endpoint: Exibir estudantes que possuam o mesmo hobby;
+export const showStudentsAge = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const studentId = Number(req.params.id);
+
+        if (!studentId) {
+            res.statusCode = 406;
+            throw new Error("Campo inválido");
+        }
+
+        if (isNaN(studentId)) {
+            res.statusCode = 406;
+            throw new Error("Não foi possível identificar estudante.");
+        }
+
+        const result = await getAgeStudent(studentId);
+
+        if (result === false) {
+            res.statusCode = 404;
+            throw new Error("Estudante não encontrado.");
         } else {
             res.status(200).send(result);
         }
