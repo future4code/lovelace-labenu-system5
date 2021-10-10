@@ -16,6 +16,7 @@
 {
     "name": "Lovelace",
     "module": 4,
+    "period": "integral",
     "initialDate": "07/06/2021",
     "finalDate": "13/12/2021"
 }
@@ -86,6 +87,15 @@
 -   **Método:** GET
 -   **Path:** `/students/age/:id`
 -   **Path Param**: é o id do estudante
+
+---
+
+
+### **Endpoint**: Pegar turma pelo id e listar docentes e estudantes dessa turma
+
+-   **Método:** GET
+-   **Path:** `/class/:id`
+-   **Path Param**: é o id da turma
 
 ---
 

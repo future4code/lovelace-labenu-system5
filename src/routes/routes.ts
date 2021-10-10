@@ -9,6 +9,7 @@ import {
     createTurmaApp,
     createUserApp,
     getAllClassApp,
+    getClassByIdApp,
     removeStudentApp,
     removeStudentTheClass,
     removeTeacherTheClass,
@@ -21,6 +22,7 @@ import {
 const router: Router = Router();
 
 router.get("/class", getAllClassApp);
+router.get("/class/:id", getClassByIdApp);
 router.get("/students/hobby", showStudentsByHobby);
 router.get("/students/class/:id", showStudentsByClass);
 router.get("/students/age/:id", showStudentsAge);
