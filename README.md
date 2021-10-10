@@ -7,7 +7,6 @@
 
 ## ENDPOINTS
 
----
 
 ### **Endpoint**: Criar Turma
 
