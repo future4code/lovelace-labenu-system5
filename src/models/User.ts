@@ -5,7 +5,28 @@ import { User } from "./types/user";
 import { Hobby } from "./types/hobby";
 
 //Helpers
-import { date_fmt } from "../config/helpers";
+import { ageFromDateOfBirthday, date_fmt } from "../config/helpers";
+
+// Get students by id return age student
+export const getAgeStudent = async (studentId: number): Promise<User[] | boolean> => {
+    try {
+        const result = await connection.select("*").from("student").where({ id: studentId });
+
+        const resultModified = result.map((user: User) => {
+            return {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                age: ageFromDateOfBirthday(date_fmt(user.birth_date))
+            };
+        });
+
+        return resultModified;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+};
 
 // Get students by class
 export const getStudentsByClass = async (turmaId: number): Promise<User[] | boolean> => {
@@ -49,7 +70,7 @@ export const getStudentsByHobby = async (hobbyName: string): Promise<any> => {
                 birthDate: date_fmt(user.birth_date)
             };
         });
-        
+
         return resultModified;
     } catch (error) {
         console.log(error);
