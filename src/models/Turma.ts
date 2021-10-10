@@ -14,6 +14,7 @@ export const getAllClass = async (): Promise<Turma[] | boolean> => {
             return {
                 id: turma.id,
                 name: turma.name,
+                period: turma.period,
                 module: turma.module,
                 initialDate: date_fmt(turma.initial_date),
                 finalDate: date_fmt(turma.final_date)
@@ -28,14 +29,50 @@ export const getAllClass = async (): Promise<Turma[] | boolean> => {
 };
 
 //get class by id
-export const getTurmaById = async (id: number): Promise<any> => {
+export const getClassById = async (id: number, moreInfo: boolean = false): Promise<any> => {
     try {
-        const result = await connection.select("*").from("class").where({ id: id });
+        let result;
+        if (moreInfo) {
+            let turma = await connection("class").select("*").where({ id: id });
+            let students = await connection("student").select("*").where({ class_id: id });
+            let teachers = await connection("teacher").select("*").where({ class_id: id });
 
-        if (result.length > 0) {
-            return result[0];
+            const resultModified = turma.map((turma: any) => {
+                return {
+                    id: turma.id,
+                    name: turma.name,
+                    period: turma.period,
+                    module: turma.module,
+                    initialDate: date_fmt(turma.initial_date),
+                    finalDate: date_fmt(turma.final_date),
+                    teachers: teachers.map((t: any) => {
+                        return {
+                            id: t.id,
+                            name: t.name,
+                            email: t.email,
+                            birthDate: date_fmt(t.birth_date)
+                        };
+                    }),
+                    students: students.map((s: any) => {
+                        return {
+                            id: s.id,
+                            name: s.name,
+                            email: s.email,
+                            birthDate: date_fmt(s.birth_date)
+                        };
+                    })
+                };
+            });
+
+            return resultModified;
         } else {
-            return false;
+            result = await connection.select("*").from("class").where({ id: id });
+
+            if (result.length > 0) {
+                return result[0];
+            } else {
+                return false;
+            }
         }
     } catch (error) {
         console.log(error);
@@ -46,16 +83,14 @@ export const getTurmaById = async (id: number): Promise<any> => {
 // Add teacher in class
 export const addTeacherInClass = async (userId: number, classId: number): Promise<boolean> => {
     try {
-        await connection("teacher")
-        .update({class_id: classId})
-        .where({id: userId})
+        await connection("teacher").update({ class_id: classId }).where({ id: userId });
 
         return true;
     } catch (error) {
         console.log(error);
         return false;
     }
-}; 
+};
 
 // Create a new class
 export const createTurma = async (turma: Turma): Promise<boolean> => {

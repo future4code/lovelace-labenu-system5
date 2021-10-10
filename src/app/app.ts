@@ -10,7 +10,7 @@ import { Hobby } from "../models/types/hobby";
 import { create_uuid, date_fmt_back, isEmpty } from "../config/helpers";
 
 //Connections database
-import { addTeacherInClass, createTurma, getAllClass, getTurmaById, updateModule } from "../models/Turma";
+import { addTeacherInClass, createTurma, getAllClass, getClassById, updateModule } from "../models/Turma";
 import {
     addInClass,
     createHobby,
@@ -211,7 +211,7 @@ export const addStudentInClassApp = async (req: Request, res: Response): Promise
             throw new Error("Campo 'studentId' ou 'classId' inválidos.");
         }
 
-        const turma = await getTurmaById(classId);
+        const turma = await getClassById(classId, false);
 
         if (turma === false) {
             res.statusCode = 404;
@@ -249,7 +249,7 @@ export const removeStudentTheClass = async (req: Request, res: Response): Promis
             throw new Error("Campo 'studentId' ou 'classId' inválidos.");
         }
 
-        const turma = await getTurmaById(classId);
+        const turma = await getClassById(classId, false);
 
         if (turma === false) {
             res.statusCode = 404;
@@ -408,7 +408,7 @@ export const addTeacherInClassApp = async (req: Request, res: Response): Promise
             throw new Error("Campo 'teacherId' ou 'classId' inválidos.");
         }
 
-        const turma = await getTurmaById(classId);
+        const turma = await getClassById(classId, false);
 
         if (turma === false) {
             res.statusCode = 404;
@@ -446,7 +446,7 @@ export const removeTeacherTheClass = async (req: Request, res: Response): Promis
             throw new Error("Campo 'teacherId' ou 'classId' inválidos.");
         }
 
-        const turma = await getTurmaById(classId);
+        const turma = await getClassById(classId, false);
 
         if (turma === false) {
             res.statusCode = 404;
@@ -483,7 +483,37 @@ export const getAllClassApp = async (req: Request, res: Response): Promise<void>
             res.statusCode = 404;
             throw new Error("Nenhuma turma encontrada!");
         } else {
-            res.status(200).json(allClasses);
+            res.status(200).send(allClasses);
+        }
+    } catch (e) {
+        const error = e as Error;
+        console.log(error);
+        res.send({ message: error.message });
+    }
+};
+
+//Endpoint: Pegar turma pelo id e listar professores e alunos dessa turma
+export const getClassByIdApp = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const turmaId = Number(req.params.id);
+
+        if (!turmaId) {
+            res.statusCode = 406;
+            throw new Error("Não foi possível identificar turma.");
+        }
+
+        if (isNaN(turmaId)) {
+            res.statusCode = 406;
+            throw new Error("Não foi possível identificar turma.");
+        }
+
+        const turma = await getClassById(turmaId, true);
+
+        if (turma === false) {
+            res.statusCode = 404;
+            throw new Error("Nenhuma turma encontrada!");
+        } else {
+            res.status(200).send(turma);
         }
     } catch (e) {
         const error = e as Error;
@@ -495,16 +525,26 @@ export const getAllClassApp = async (req: Request, res: Response): Promise<void>
 // Endpoint: Criar Turma
 export const createTurmaApp = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { name, module, initialDate, finalDate } = req.body;
+        const { name, period, module, initialDate, finalDate } = req.body;
 
         if (isNaN(module)) {
             res.statusCode = 406;
             throw new Error("Campo 'module' inválido.");
         }
 
-        if (!name || !initialDate || !finalDate) {
+        if (module < 1 || module > 7) {
+            res.statusCode = 406;
+            throw new Error("O módulo só pode assumir valores de 1 a 7!");
+        }
+
+        if (!name || !period || !initialDate || !finalDate) {
             res.statusCode = 406;
             throw new Error("Campos inválidos.");
+        }
+
+        if (period !== "integral" && period !== "noturna") {
+            res.statusCode = 406;
+            throw new Error("Período Inválido! Somente turmas 'integral' ou 'noturna' podem ser criadas.");
         }
 
         const id: number = create_uuid();
@@ -512,6 +552,7 @@ export const createTurmaApp = async (req: Request, res: Response): Promise<void>
         const newTurma: Turma = {
             id: id,
             name: name,
+            period: period,
             module: module,
             initial_date: date_fmt_back(initialDate),
             final_date: date_fmt_back(finalDate)
@@ -548,7 +589,7 @@ export const changeModuleClass = async (req: Request, res: Response): Promise<vo
             throw new Error("Campo 'id' ou 'module' inválidos.");
         }
 
-        const checkClass = await getTurmaById(id);
+        const checkClass = await getClassById(id, false);
 
         if (checkClass === false) {
             res.statusCode = 404;
