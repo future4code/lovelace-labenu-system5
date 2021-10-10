@@ -80,6 +80,15 @@
 
 ---
 
+
+### **Endpoint**: Pegar a idade de algum estudante a partir do id
+
+-   **Método:** GET
+-   **Path:** `/students/age/:id`
+-   **Path Param**: é o id do estudante
+
+---
+
 ### **Endpoint**: Exibir estudantes de uma turma
 
 -   **Método:** GET
