@@ -1,4 +1,6 @@
 import { Request, Response } from "express";
+import connection from "../core/connection";
+
 
 //types
 import { Turma } from "../models/types/turma";
@@ -10,7 +12,7 @@ import { create_uuid, date_fmt_back } from "../config/helpers";
 
 //Connections database
 import { createTurma, getTurmaById } from "../models/Turma";
-import { createUser } from "../models/User";
+import { createUser, ageFromDateOfBirthday,getStudentId } from "../models/User";
 import { createTeacher, createTeacherSpecialty, findSpecially } from "../models/Teacher";
 
 // Endpoint: Criar Estudante
@@ -167,3 +169,37 @@ export const createTurmaApp = async (req: Request, res: Response): Promise<void>
         res.send({ message: error.message });
     }
 };
+
+
+//Endpoint get studentAge By ID 
+
+export const getStudeAgeByIdApp = async (res: Response, req: Request): Promise<void> => {
+
+
+    try {
+        const id = req.params.id
+
+        const studentId:any = await getStudentId(id)
+
+        const birth_date: string|any = connection.raw(`SELECT birth_date FROM students WHERE id = "${id}"`)
+
+        if(studentId){
+            res.status(200).send(ageFromDateOfBirthday(birth_date))
+        }  else if(!studentId){
+            throw new Error("Id not found or incorrect"); 
+        }
+
+    } catch (e) {
+        const error = e as Error;
+        console.log(error);
+        res.send({ message: error.message });
+    };
+
+};
+
+
+
+
+
+
+
